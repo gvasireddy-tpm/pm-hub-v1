@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>PM Hub v8</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ac:#2563EB;--ac-bg:#EFF6FF;--ac-tx:#1D4ED8;--gn:#16A34A;--gn-bg:#F0FDF4;--gn-tx:#15803D;--am:#D97706;--am-bg:#FFFBEB;--am-tx:#B45309;--rd:#DC2626;--rd-bg:#FEF2F2;--rd-tx:#B91C1C;--pu:#7C3AED;--pu-bg:#F5F3FF;--pu-tx:#6D28D9;--tl:#0D9488;--tl-bg:#F0FDFA;--tl-tx:#0F766E;--or:#EA580C;--or-bg:#FFF7ED;--or-tx:#C2410C}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111}
+.app{display:flex;height:100vh;min-height:720px;overflow:hidden;background:#F8FAFC}
+.sb{width:220px;min-width:220px;background:#fff;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-top{padding:16px 18px 14px;border-bottom:1px solid #E2E8F0}
+.sb-logo{font-size:16px;font-weight:700;color:#0F172A}
+.sb-date{font-size:11px;color:#94A3B8;margin-top:3px}
+.sb-grp{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94A3B8;padding:14px 18px 4px}
+.sb-lnk{display:flex;align-items:center;gap:10px;padding:9px 18px;font-size:13px;font-weight:500;color:#64748B;cursor:pointer;border-left:3px solid transparent;transition:all .12s;user-select:none}
+.sb-lnk:hover{background:#F1F5F9;color:#0F172A}
+.sb-lnk.on{color:#1D4ED8;background:#EFF6FF;border-left-color:#2563EB}
+.sb-ic{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.sb-n{margin-left:auto;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center;color:#fff;display:none}
+.nr{background:#DC2626}.na{background:#D97706}.nb{background:#2563EB}.ng{background:#16A34A}.no{background:#EA580C}
+.sb-foot{margin-top:auto;padding:10px 18px;font-size:11px;color:#94A3B8;border-top:1px solid #E2E8F0}
+.mn{flex:1;min-width:0;overflow:hidden;display:flex;flex-direction:column}
+#scr{flex:1;overflow-y:auto;padding:22px 24px;background:#F8FAFC}
+.pg{display:none}.pg.show{display:block}
+
+/* FORM PAGE */
+#pg-form{background:#fff;border-radius:12px;border:1.5px solid #E2E8F0;overflow:hidden}
+.fh{display:flex;align-items:center;gap:14px;padding:15px 22px;background:#F8FAFC;border-bottom:1.5px solid #E2E8F0}
+.fh-back{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:#1D4ED8;cursor:pointer;background:#EFF6FF;border:none;font-family:inherit;padding:7px 13px;border-radius:8px}
+.fh-back:hover{background:#BFDBFE}
+.fh-title{font-size:15px;font-weight:700;color:#0F172A;flex:1}
+.fb{padding:24px 28px}
+.ff{padding:14px 28px 18px;border-top:1px solid #E2E8F0;display:flex;gap:10px;justify-content:flex-end;background:#F8FAFC}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #CBD5E1;background:#fff;color:#64748B;font-family:inherit;transition:all .12s;white-space:nowrap;line-height:1}
+.btn:hover{background:#F1F5F9}
+.btn.pri{background:#2563EB;color:#fff;border-color:#2563EB}.btn.pri:hover{background:#1D4ED8}
+.btn.suc{background:#16A34A;color:#fff;border-color:#16A34A}.btn.suc:hover{background:#15803D}
+.btn.dan{color:#DC2626;border-color:transparent;background:transparent}.btn.dan:hover{background:#FEF2F2}
+.btn.warn{background:#D97706;color:#fff;border-color:#D97706}.btn.warn:hover{background:#B45309}
+.btn.sm{padding:5px 12px;font-size:12px;border-radius:7px}
+.btn.xs{padding:3px 9px;font-size:11px;border-radius:6px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.ic{background:none;border:none;cursor:pointer;padding:4px 7px;border-radius:6px;color:#94A3B8;font-size:13px;font-family:inherit;transition:all .1s;line-height:1}
+.ic:hover{background:#F1F5F9;color:#0F172A}.ic.del:hover{background:#FEF2F2;color:#DC2626}
+
+.fld{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}.fld:last-child{margin-bottom:0}
+.lbl{font-size:12px;font-weight:700;color:#475569}
+input[type=text],input[type=date],select,textarea{font-size:13px;font-family:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid #CBD5E1;background:#fff;color:#0F172A;width:100%;transition:border-color .15s;line-height:1.4}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+textarea{resize:vertical;line-height:1.6}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* PAGE HEADERS */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
+.ph h2{font-size:20px;font-weight:700;color:#0F172A}
+.ph p{font-size:12px;color:#94A3B8;margin-top:3px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.stat{border-radius:12px;padding:16px;border:1.5px solid}
+.s0{background:#EFF6FF;border-color:#BFDBFE}.s1{background:#FFFBEB;border-color:#FDE68A}.s2{background:#FEF2F2;border-color:#FECACA}.s3{background:#F0FDF4;border-color:#BBF7D0}
+.sn{font-size:28px;font-weight:700;line-height:1}
+.s0 .sn{color:#2563EB}.s1 .sn{color:#D97706}.s2 .sn{color:#DC2626}.s3 .sn{color:#16A34A}
+.sl{font-size:12px;font-weight:500;color:#64748B;margin-top:5px}
+
+/* CHIPS */
+.chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap;line-height:1.4}
+.cg{background:#F1F5F9;color:#64748B}.cb{background:#EFF6FF;color:#1D4ED8}.cg2{background:#F0FDF4;color:#15803D}.ca{background:#FFFBEB;color:#B45309}.cr{background:#FEF2F2;color:#B91C1C}.cp{background:#F5F3FF;color:#6D28D9}.ct{background:#F0FDFA;color:#0F766E}.co{background:#FFF7ED;color:#C2410C}
+
+/* TASK CARD */
+.tc{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;transition:border-color .12s}
+.tc:hover{border-color:#CBD5E1}.tc:hover .tca{opacity:1}
+.tc.done .tct{text-decoration:line-through;color:#94A3B8}
+.tc.ov{border-left:4px solid #DC2626;border-radius:0 12px 12px 0}.tc.tod{border-left:4px solid #D97706;border-radius:0 12px 12px 0}
+.chk{width:20px;height:20px;border-radius:50%;border:2px solid #CBD5E1;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.chk:hover{border-color:#2563EB}.chk.k{background:#16A34A;border-color:#16A34A}
+.chk.k::after{content:'';display:block;width:6px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg);margin-top:-1px}
+.tcb{flex:1;min-width:0}.tct{font-size:14px;font-weight:500;color:#0F172A;line-height:1.4;margin-bottom:5px}.tcm{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.pd{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}.pdh{background:#DC2626}.pdm{background:#D97706}.pdl{background:#16A34A}
+.tca{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity .1s}
+
+.sec{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748B;margin-bottom:8px;margin-top:18px}.sec:first-child{margin-top:0}
+.fltr{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.fltr input,.fltr select{font-size:12px;padding:7px 10px;border-radius:8px;border:1.5px solid #CBD5E1;background:#fff;color:#0F172A;font-family:inherit}
+.fltr input:focus,.fltr select:focus{outline:none;border-color:#2563EB}
+
+/* CHECKLIST */
+.clw{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;margin-bottom:14px;overflow:hidden}
+.clh{background:#EFF6FF;padding:13px 18px;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid #BFDBFE}
+.clhn{font-size:15px;font-weight:700;color:#1D4ED8;flex:1}
+.clhp{font-size:12px;font-weight:700;color:#2563EB;background:#fff;padding:3px 9px;border-radius:10px}
+.clpb{height:4px;background:#BFDBFE}.clpf{height:100%;background:#2563EB;transition:width .3s}
+.clr{padding:12px 18px;border-bottom:1px solid #E2E8F0;display:flex;align-items:flex-start;gap:10px;transition:background .1s}
+.clr:last-child{border-bottom:none}.clr:hover{background:#F8FAFC}.clr:hover .clra{opacity:1}
+.clcb{width:16px;height:16px;accent-color:#2563EB;cursor:pointer;flex-shrink:0;margin-top:2px}
+.clrb{flex:1;min-width:0}.clrt{font-size:13px;font-weight:500;color:#0F172A;line-height:1.4}
+.clr.cld .clrt{text-decoration:line-through;color:#94A3B8}
+.clrs{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;align-items:center}
+.clcmt{font-size:11px;color:#64748B;background:#F1F5F9;padding:2px 8px;border-radius:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clra{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity .1s}
+
+/* REMINDER */
+.rmc{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:border-color .12s}
+.rmc:hover{border-color:#CBD5E1}.rmc:hover .rmca{opacity:1}
+.rmc.ov{border-left:4px solid #DC2626;border-radius:0 12px 12px 0}.rmc.tod{border-left:4px solid #D97706;border-radius:0 12px 12px 0}
+.rmcd{font-size:12px;font-weight:700;color:#64748B;min-width:80px;flex-shrink:0;padding-top:2px}
+.rmct{font-size:14px;font-weight:500;color:#0F172A;margin-bottom:4px}.rmc.rdone .rmct{text-decoration:line-through;color:#94A3B8}
+.rmca{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity .1s}
+.rmc-freq{font-size:11px;color:#7C3AED;background:#F5F3FF;padding:2px 7px;border-radius:6px;font-weight:600}
+
+/* BOARD */
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.bcol{background:#F1F5F9;border-radius:12px;padding:12px}
+.bcolh{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748B;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.bcard{background:#fff;border:1px solid #E2E8F0;border-radius:9px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:border-color .1s;font-size:12px}
+.bcard:hover{border-color:#CBD5E1}
+
+/* GENERIC CARD */
+.card{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;margin-bottom:10px;transition:border-color .12s}
+.card:hover{border-color:#CBD5E1}
+.cardt{font-size:15px;font-weight:600;color:#0F172A;margin-bottom:6px}
+.cardm{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.cardb{font-size:13px;color:#64748B;line-height:1.6;white-space:pre-wrap}
+.cardf{display:flex;gap:6px;flex-wrap:wrap;padding-top:10px;margin-top:10px;border-top:1px solid #E2E8F0}
+
+/* MEETING TABS */
+.tbar{display:flex;background:#F1F5F9;border-radius:10px;padding:4px;gap:3px;width:fit-content;margin-bottom:18px}
+.tabb{padding:7px 16px;font-size:13px;font-weight:600;border-radius:7px;cursor:pointer;color:#64748B;border:none;background:none;font-family:inherit;transition:all .12s}
+.tabb.on{background:#fff;color:#0F172A;border:1px solid #E2E8F0}
+
+/* MOM FORM */
+.mp{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:20px;margin-bottom:14px}
+.mp h3{font-size:14px;font-weight:700;color:#0F172A;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #E2E8F0}
+.aibox{background:#F0F7FF;border:1.5px solid #BFDBFE;border-radius:12px;padding:16px;margin-top:14px}
+.ailbl{font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.aibdy{font-size:13px;color:#0F172A;line-height:1.8;white-space:pre-wrap;max-height:260px;overflow-y:auto}
+.aiacts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* PROJECT CARD */
+.pcard{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:18px;margin-bottom:12px;transition:border-color .12s}
+.pcard:hover{border-color:#CBD5E1}
+.pcard-name{font-size:17px;font-weight:700;color:#0F172A;margin-bottom:8px}
+.proj-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.psum{border-radius:10px;padding:13px;border:1.5px solid;text-align:center}
+.psum0{background:#F0FDF4;border-color:#BBF7D0}.psum1{background:#EFF6FF;border-color:#BFDBFE}.psum2{background:#FFFBEB;border-color:#FDE68A}
+.psumn{font-size:22px;font-weight:700}.psum0 .psumn{color:#16A34A}.psum1 .psumn{color:#2563EB}.psum2 .psumn{color:#D97706}
+.psuml{font-size:11px;font-weight:500;color:#64748B;margin-top:3px}
+
+/* RISK CARD */
+.riskcard{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;margin-bottom:10px;transition:border-color .12s}
+.riskcard:hover{border-color:#CBD5E1}
+.riskcard.hi{border-left:4px solid #DC2626;border-radius:0 12px 12px 0}
+.riskcard.md{border-left:4px solid #D97706;border-radius:0 12px 12px 0}
+.riskcard.lo{border-left:4px solid #16A34A;border-radius:0 12px 12px 0}
+.risk-title{font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px}
+.risk-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;align-items:center}
+.risk-body{font-size:13px;color:#64748B;line-height:1.5}
+.riskcard-foot{display:flex;gap:6px;padding-top:10px;margin-top:8px;border-top:1px solid #E2E8F0}
+
+/* ESCALATION */
+.esc-card{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;margin-bottom:10px;transition:border-color .12s}
+.esc-card:hover{border-color:#CBD5E1}
+.esc-name{font-size:15px;font-weight:700;color:#0F172A;margin-bottom:6px}
+.esc-role{font-size:12px;color:#64748B;margin-bottom:8px}
+.esc-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.esc-foot{display:flex;gap:6px;padding-top:8px;margin-top:8px;border-top:1px solid #E2E8F0}
+
+/* MISC */
+.empty{text-align:center;padding:44px 20px;color:#94A3B8}
+.empi{font-size:28px;opacity:.25;margin-bottom:10px}.empm{font-size:14px;font-weight:500}
+.drm{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.drm.ov{border-left:4px solid #DC2626;border-radius:0 10px 10px 0}.drm.tod{border-left:4px solid #D97706;border-radius:0 10px 10px 0}
+.actr{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #E2E8F0}
+.actd{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;background:#2563EB}
+.actm{font-size:13px;color:#64748B;flex:1;line-height:1.4}.actts{font-size:11px;color:#94A3B8;flex-shrink:0}
+.spin{width:12px;height:12px;border:2px solid rgba(37,99,235,.2);border-top-color:#2563EB;border-radius:50%;animation:sp .6s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:13px;font-weight:600;padding:10px 22px;border-radius:24px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:9}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app" id="APP" style="position:relative">
+<div class="sb">
+  <div class="sb-top"><div class="sb-logo">PM Hub</div><div class="sb-date" id="sbd"></div></div>
+  <div class="sb-grp">Overview</div>
+  <div class="sb-lnk on" data-page="dashboard" onclick="goPage(this)"><span class="sb-ic">⊞</span>Dashboard</div>
+  <div class="sb-grp">Work</div>
+  <div class="sb-lnk" data-page="projects" onclick="goPage(this)"><span class="sb-ic">◉</span>Projects<span class="sb-n ng" id="nb-p">0</span></div>
+  <div class="sb-lnk" data-page="tasks" onclick="goPage(this)"><span class="sb-ic">✓</span>Tasks<span class="sb-n nr" id="nb-t">0</span></div>
+  <div class="sb-lnk" data-page="board" onclick="goPage(this)"><span class="sb-ic">▦</span>Board</div>
+  <div class="sb-lnk" data-page="checklists" onclick="goPage(this)"><span class="sb-ic">☑</span>Checklists</div>
+  <div class="sb-lnk" data-page="reminders" onclick="goPage(this)"><span class="sb-ic">◷</span>Reminders<span class="sb-n na" id="nb-r">0</span></div>
+  <div class="sb-grp">Knowledge</div>
+  <div class="sb-lnk" data-page="meetings" onclick="goPage(this)"><span class="sb-ic">◎</span>Meetings &amp; MOM<span class="sb-n nb" id="nb-m">0</span></div>
+  <div class="sb-lnk" data-page="learnings" onclick="goPage(this)"><span class="sb-ic">◈</span>Learnings</div>
+  <div class="sb-grp">Governance</div>
+  <div class="sb-lnk" data-page="risks" onclick="goPage(this)"><span class="sb-ic">⚠</span>Risks &amp; Dependencies<span class="sb-n nr" id="nb-ri">0</span></div>
+  <div class="sb-lnk" data-page="escalation" onclick="goPage(this)"><span class="sb-ic">↑</span>Escalation Matrix</div>
+  <div class="sb-grp">History</div>
+  <div class="sb-lnk" data-page="activity" onclick="goPage(this)"><span class="sb-ic">≡</span>Daily Log</div>
+  <div class="sb-foot">Data saved in your browser</div>
+</div>
+
+<div class="mn">
+<div id="scr">
+
+<!-- DASHBOARD -->
+<div id="pg-dashboard" class="pg show">
+  <div class="ph"><div><h2>Dashboard 👋</h2><p>Your day at a glance</p></div></div>
+  <div class="stats">
+    <div class="stat s0"><div class="sn" id="s0">0</div><div class="sl">Open tasks</div></div>
+    <div class="stat s1"><div class="sn" id="s1">0</div><div class="sl">Due today</div></div>
+    <div class="stat s2"><div class="sn" id="s2">0</div><div class="sl">Overdue</div></div>
+    <div class="stat s3"><div class="sn" id="s3">0</div><div class="sl">Completed</div></div>
+  </div>
+  <div class="r2" style="gap:20px;align-items:flex-start">
+    <div><div class="sec">⚠ Needs attention</div><div id="d-urg"></div><div class="sec">📅 Upcoming</div><div id="d-nxt"></div></div>
+    <div><div class="sec">🔔 Reminders due</div><div id="d-rem"></div></div>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<div id="pg-projects" class="pg">
+  <div class="ph"><div><h2>Projects</h2><p>Manage projects · select them across tasks, reminders, meetings and learnings</p></div><button class="btn pri" onclick="openProjForm(null)">+ New Project</button></div>
+  <div id="pj-summary"></div>
+  <div id="pj-list"></div>
+</div>
+
+<!-- TASKS -->
+<div id="pg-tasks" class="pg">
+  <div class="ph"><div><h2>Tasks</h2><p>Track and manage all work items</p></div><button class="btn pri" onclick="openTaskForm(null)">+ Add Task</button></div>
+  <div class="fltr">
+    <input type="text" id="fq" placeholder="Search tasks..." style="width:170px" oninput="renderTasks()">
+    <select id="fst" onchange="renderTasks()" style="width:120px"><option value="">All status</option><option value="open">Open</option><option value="done">Done</option></select>
+    <select id="fpri" onchange="renderTasks()" style="width:120px"><option value="">All priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+    <select id="fproj-t" onchange="renderTasks()" style="width:140px"><option value="">All projects</option></select>
+  </div>
+  <div id="task-list"></div>
+</div>
+
+<!-- BOARD -->
+<div id="pg-board" class="pg">
+  <div class="ph"><div><h2>Board</h2><p>Kanban view of all tasks</p></div><button class="btn pri" onclick="openTaskForm(null)">+ Add Task</button></div>
+  <div class="board" id="board-view"></div>
+</div>
+
+<!-- CHECKLISTS -->
+<div id="pg-checklists" class="pg">
+  <div class="ph"><div><h2>Checklists</h2><p>Structured lists with ETA, owner and comments</p></div><button class="btn pri" onclick="openCLForm(null)">+ New Checklist</button></div>
+  <div id="cl-list"></div>
+</div>
+
+<!-- REMINDERS -->
+<div id="pg-reminders" class="pg">
+  <div class="ph"><div><h2>Reminders</h2><p>One-time and recurring reminders — weekly, daily, or custom frequency</p></div><button class="btn pri" onclick="openRemForm(null)">+ Add Reminder</button></div>
+  <div id="rem-list"></div>
+</div>
+
+<!-- MEETINGS -->
+<div id="pg-meetings" class="pg">
+  <div class="ph"><div><h2>Meetings &amp; MOM</h2><p>Capture notes · generate AI minutes · archive by date</p></div></div>
+  <div class="tbar">
+    <button class="tabb on" id="tab-new" onclick="meetTab('new',this)">New meeting</button>
+    <button class="tabb" id="tab-arch" onclick="meetTab('archive',this)">Archive (<span id="mom-ct">0</span>)</button>
+  </div>
+  <div id="mt-new">
+    <div class="mp"><h3>Meeting details</h3>
+      <div class="fld"><div class="lbl">Meeting title *</div><input type="text" id="mt-title" placeholder="e.g. Sprint 15 Planning, Q2 Review"></div>
+      <div class="r3">
+        <div class="fld"><div class="lbl">Date</div><input type="date" id="mt-date"></div>
+        <div class="fld"><div class="lbl">Project</div><select id="mt-proj"></select></div>
+        <div class="fld"><div class="lbl">Facilitator</div><input type="text" id="mt-fac" placeholder="Your name"></div>
+      </div>
+      <div class="fld"><div class="lbl">Attendees (comma separated)</div><input type="text" id="mt-att" placeholder="Rahul, Priya, Kiran..."></div>
+    </div>
+    <div class="mp"><h3>Your raw notes</h3>
+      <div class="fld"><textarea id="mt-notes" rows="7" placeholder="Paste rough notes — discussions, decisions, action items with owners, blockers. AI converts this into a professional MOM."></textarea></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn pri" id="gen-btn" onclick="generateMOM()">✦ Generate MOM with AI</button>
+        <button class="btn" onclick="saveDraft()">Save as draft</button>
+        <span id="draft-msg" style="font-size:12px;color:#94A3B8"></span>
+      </div>
+    </div>
+    <div id="mom-result"></div>
+  </div>
+  <div id="mt-arch" style="display:none">
+    <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1D4ED8;font-weight:500">Each meeting is saved separately. Use the "New meeting" tab to add another — all stack here, grouped by date.</div>
+    <div class="fltr">
+      <input type="text" id="maq" placeholder="Search meetings..." oninput="renderMOMs()" style="flex:1;max-width:260px">
+      <select id="ma-proj" onchange="renderMOMs()" style="width:170px"><option value="">All projects</option></select>
+    </div>
+    <div id="mom-list"></div>
+  </div>
+</div>
+
+<!-- LEARNINGS -->
+<div id="pg-learnings" class="pg">
+  <div class="ph"><div><h2>Learnings</h2><p>Your personal knowledge base</p></div><button class="btn pri" onclick="openLearnForm()">+ Add Learning</button></div>
+  <div class="fltr">
+    <input type="text" id="lq" placeholder="Search learnings..." style="width:200px" oninput="renderLearnings()">
+    <select id="lcat" onchange="renderLearnings()" style="width:170px"><option value="">All categories</option></select>
+  </div>
+  <div id="learn-list"></div>
+</div>
+
+<!-- RISKS & DEPENDENCIES -->
+<div id="pg-risks" class="pg">
+  <div class="ph"><div><h2>Risks &amp; Dependencies</h2><p>Track project risks, blockers and external dependencies</p></div><button class="btn pri" onclick="openRiskForm(null)">+ Add Risk / Dependency</button></div>
+  <div class="fltr">
+    <select id="frisk-type" onchange="renderRisks()" style="width:150px"><option value="">All types</option><option value="Risk">Risk</option><option value="Dependency">Dependency</option><option value="Blocker">Blocker</option></select>
+    <select id="frisk-level" onchange="renderRisks()" style="width:130px"><option value="">All severity</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
+    <select id="frisk-proj" onchange="renderRisks()" style="width:160px"><option value="">All projects</option></select>
+    <select id="frisk-status" onchange="renderRisks()" style="width:140px"><option value="">All status</option><option value="Open">Open</option><option value="Mitigated">Mitigated</option><option value="Closed">Closed</option></select>
+  </div>
+  <div id="risk-list"></div>
+</div>
+
+<!-- ESCALATION MATRIX -->
+<div id="pg-escalation" class="pg">
+  <div class="ph"><div><h2>Escalation Matrix</h2><p>Who to escalate to, when, and how — per project or overall</p></div><button class="btn pri" onclick="openEscForm(null)">+ Add Contact</button></div>
+  <div class="fltr">
+    <select id="fesc-proj" onchange="renderEsc()" style="width:180px"><option value="">All projects</option></select>
+    <select id="fesc-level" onchange="renderEsc()" style="width:150px"><option value="">All levels</option><option value="L1">L1 — Team lead</option><option value="L2">L2 — Manager</option><option value="L3">L3 — Director</option><option value="L4">L4 — Executive</option></select>
+  </div>
+  <div id="esc-list"></div>
+</div>
+
+<!-- ACTIVITY -->
+<div id="pg-activity" class="pg">
+  <div class="ph"><div><h2>Daily Log</h2><p>Auto-recorded trail — useful for standups and EOD updates</p></div><button class="btn dan sm" onclick="if(confirm('Clear all?')){S.log=[];persist();renderActivity()}">Clear</button></div>
+  <div id="act-list"></div>
+</div>
+
+<!-- ====== UNIVERSAL FORM PAGE ====== -->
+<div id="pg-form" class="pg">
+  <div class="fh"><button class="fh-back" onclick="cancelForm()">← Back</button><div class="fh-title" id="frm-title">Form</div></div>
+
+  <!-- TASK -->
+  <div id="frm-task" style="display:none">
+    <div class="fb">
+      <div class="fld"><div class="lbl">Task title *</div><input type="text" id="ti-name" placeholder="What needs to be done?"></div>
+      <div class="r2"><div class="fld"><div class="lbl">Project</div><select id="ti-proj"></select></div><div class="fld"><div class="lbl">Assignee</div><input type="text" id="ti-owner" placeholder="Person responsible"></div></div>
+      <div class="r3"><div class="fld"><div class="lbl">Priority</div><select id="ti-pri"><option value="high">🔴 High</option><option value="medium" selected>🟡 Medium</option><option value="low">🟢 Low</option></select></div><div class="fld"><div class="lbl">Due date</div><input type="date" id="ti-due"></div><div class="fld"><div class="lbl">Status</div><select id="ti-st"><option value="todo">To do</option><option value="inprogress">In progress</option><option value="review">In review</option><option value="done">Done</option></select></div></div>
+      <div class="fld"><div class="lbl">Notes</div><textarea id="ti-notes" rows="3" placeholder="Optional context..."></textarea></div>
+    </div>
+    <div class="ff"><button class="btn" onclick="cancelForm()">Cancel</button><button class="btn pri" onclick="saveTask()">Save task</button></div>
+  </div>
+
+  <!-- PROJECT -->
+  <div id="frm-proj" style="display:none">
+    <div class="fb">
+      <div class="fld"><div class="lbl">Project name *</div><input type="text" id="pj-name" placeholder="e.g. Website Redesign, Mobile App v2"></div>
+      <div class="r2"><div class="fld"><div class="lbl">Status</div><select id="pj-status"><option value="Planning">📋 Planning</option><option value="Active" selected>🚀 Active</option><option value="On Hold">⏸ On Hold</option><option value="Completed">✅ Completed</option></select></div><div class="fld"><div class="lbl">Description</div><input type="text" id="pj-desc" placeholder="Brief description"></div></div>
+      <div class="r2"><div class="fld"><div class="lbl">Start date</div><input type="date" id="pj-start"></div><div class="fld"><div class="lbl">End date (target)</div><input type="date" id="pj-end"></div></div>
+      <div class="fld"><div class="lbl">Project manager / owner</div><input type="text" id="pj-owner" placeholder="Who is responsible?"></div>
+    </div>
+    <div class="ff"><button class="btn" onclick="cancelForm()">Cancel</button><button class="btn pri" onclick="saveProj()">Save project</button></div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div id="frm-cl" style="display:none">
+    <div class="fb">
+      <div class="fld"><div class="lbl">Checklist name *</div><input type="text" id="cl-name" placeholder="e.g. Deployment checklist, Daily standup prep"></div>
+      <div class="fld"><div class="lbl">Project</div><select id="cl-proj"></select></div>
+    </div>
+    <div class="ff"><button class="btn" onclick="cancelForm()">Cancel</button><button class="btn pri" onclick="saveCL()">Save checklist</button></div>
+  </div>
+
+  <!-- CHECKLIST ITEM -->
+  <div id="frm-cli" style="display:none">
+    <div class="fb">
+      <div class="fld"><div class="lbl">Item title *</div><input type="text" id="cli-txt" placeholder="What needs to be done?"></div>
+      <div class="r2"><div class="fld"><div class="lbl">ETA / due date</div><input type="date" id="cli-eta"></div><div class="fld"><div class="lbl">Assigned to</div><input type="text" id="cli-own" placeholder="Person's name"></div></div>
+      <div class="fld"><div class="lbl">Comments / notes</div><textarea id="cli-cmt" rows="4" placeholder="Notes, context, blockers..."></textarea></div>
+    </div>
+    <div class="ff"><button class="btn" onclick="cancelForm()">Cancel</button><button class="btn pri" onclick="saveCLI()">Save item</button></div>
+  </div>
+
+  <!-- REMINDER -->
+  <div id="frm-rem" style="display:none">
+    <div class="fb">
+      <div class="fld"><div class="lbl">Reminder *</div><input type="text" id="ri-txt" placeholder="e.g. Send WSR to stakeholders, Ask team for updates"></div>
+      <div class="r2">
+        <div class="fld"><div class="lbl">Frequency</div>
+          <select id="ri-freq">
+            <option value="once">One-time</option>
+            <option value="daily">Daily</option>
+            <option value="weekly-mon">Every Monday</option>
+            <option value="weekly-tue">Every Tuesday</option>
+            <option value="weekly-wed">Every Wednesday</option>
+            <option value="weekly-thu">Every Thursday</option>
+            <option value="weekly-fri">Every Friday</option>
+            <option value="biweekly">Bi-weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+        <div class="fld"><div class="lbl">Start / next date</div><input type="date" id="ri-date"></div>
+      </div>
+      <div class="r2"><div class="fld"><div class="lbl">Category</div><input type="text" id="ri-cat" placeholder="WSR / Follow-up / Meeting prep"></div><div class="fld"><div class="lbl">Project (optional)</div><select id="ri-proj"></select></div></div>
+    </div>
+    <div class="ff"><button class="btn" onclick="cancelForm()">Cancel</button><button class="btn pri" onclick="saveRem()">Set reminder</button></div>
+  </div>
+
+  <!-- LEARNING -->
+  <div id="frm-learn" style="display:none">
+    <div class="fb">
+      <div class="fld"><div class="lbl">What did you learn? *</div><input type="text" id="li-title" placeholder="One-line summary"></div>
+      <div class="r2"><div class="fld"><div class="lbl">Category</div><input type="text" id="li-cat" placeholder="Technical / Process / People"></div><div class="fld"><div class="lbl">Project</div><select id="li-proj"></select></div></div>
+      <div class="fld"><div class="lbl">Details &amp; context</div><textarea id="li-detail" rows="3" placeholder="Describe what you learned..."></textarea></div>
+      <div class="fld"><div class="lbl">Action — how I will apply this</div><textarea id="li-action" rows="2" placeholder="What will you do differently?"></textarea></div>
+    </div>
+    <div class="ff"><button class="btn" onclick="cancelForm()">Cancel</button><button class="btn" id="ai-exp-btn" onclick="aiExpand()">✦ Expand with AI</button><button class="btn pri" onclick="saveLearning()">Save learning</button></div>
+  </div>
+
+  <!-- RISK -->
+  <div id="frm-risk" style="display:none">
+    <div class="fb">
+      <div class="fld"><div class="lbl">Title *</div><input type="text" id="rk-title" placeholder="Describe the risk, blocker or dependency"></div>
+      <div class="r3">
+        <div class="fld"><div class="lbl">Type</div><select id="rk-type"><option value="Risk">⚠ Risk</option><option value="Dependency">🔗 Dependency</option><option value="Blocker">🚧 Blocker</option></select></div>
+        <div class="fld"><div class="lbl">Severity</div><select id="rk-level"><option value="High">🔴 High</option><option value="Medium" selected>🟡 Medium</option><option value="Low">🟢 Low</option></select></div>
+        <div class="fld"><div class="lbl">Status</div><select id="rk-status"><option value="Open">Open</option><option value="Mitigated">Mitigated</option><option value="Closed">Closed</option></select></div>
+      </div>
+      <div class="r2"><div class="fld"><div class="lbl">Project</div><select id="rk-proj"></select></div><div class="fld"><div class="lbl">Owner</div><input type="text" id="rk-owner" placeholder="Who is responsible?"></div></div>
+      <div class="fld"><div class="lbl">Impact / description</div><textarea id="rk-impact" rows="3" placeholder="What is the impact? What depends on what?"></textarea></div>
+      <div class="fld"><div class="lbl">Mitigation / resolution plan</div><textarea id="rk-mitigation" rows="3" placeholder="What is being done to address this?"></textarea></div>
+      <div class="fld"><div class="lbl">Due / review date</div><input type="date" id="rk-due"></div>
+    </div>
+    <div class="ff"><button class="btn" onclick="cancelForm()">Cancel</button><button class="btn pri" onclick="saveRisk()">Save</button></div>
+  </div>
+
+  <!-- ESCALATION -->
+  <div id="frm-esc" style="display:none">
+    <div class="fb">
+      <div class="fld"><div class="lbl">Name *</div><input type="text" id="es-name" placeholder="Escalation contact's full name"></div>
+      <div class="r2"><div class="fld"><div class="lbl">Role / title</div><input type="text" id="es-role" placeholder="e.g. Engineering Manager, VP of Product"></div><div class="fld"><div class="lbl">Escalation level</div><select id="es-level"><option value="L1">L1 — Team lead</option><option value="L2">L2 — Manager</option><option value="L3">L3 — Director</option><option value="L4">L4 — Executive</option></select></div></div>
+      <div class="r2"><div class="fld"><div class="lbl">Email</div><input type="text" id="es-email" placeholder="email@company.com"></div><div class="fld"><div class="lbl">Phone / Slack</div><input type="text" id="es-phone" placeholder="Phone or @handle"></div></div>
+      <div class="fld"><div class="lbl">Project</div><select id="es-proj"></select></div>
+      <div class="fld"><div class="lbl">When to escalate</div><textarea id="es-when" rows="3" placeholder="e.g. When issue is unresolved for more than 48h, When budget exceeds threshold..."></textarea></div>
+    </div>
+    <div class="ff"><button class="btn" onclick="cancelForm()">Cancel</button><button class="btn pri" onclick="saveEsc()">Save contact</button></div>
+  </div>
+
+  <!-- MOM VIEW -->
+  <div id="frm-momview" style="display:none">
+    <div class="fb">
+      <div style="font-size:12px;color:#94A3B8;margin-bottom:12px" id="mv-meta"></div>
+      <div style="font-size:13px;line-height:1.9;white-space:pre-wrap;color:#0F172A;background:#F8FAFC;border-radius:10px;padding:16px;max-height:420px;overflow-y:auto" id="mv-body"></div>
+    </div>
+    <div class="ff"><button class="btn" onclick="cancelForm()">← Back to archive</button><button class="btn pri" onclick="copyMOMView()">Copy for email</button></div>
+  </div>
+</div>
+
+</div><!-- end scr -->
+</div><!-- end mn -->
+</div><!-- end app -->
+<div class="toast" id="toast"></div>
+
+<script>
+var S={tasks:[],projects:[],checklists:[],reminders:[],moms:[],learnings:[],risks:[],escalation:[],log:[]};
+var _curPage='dashboard',_retPage='dashboard';
+var _eTask=null,_eProj=null,_eCL=null,_eCLcl=null,_eCLI=null,_eRem=null,_vMOM=null,_pMOM=null,_eRisk=null,_eEsc=null;
+var PAGS=['dashboard','projects','tasks','board','checklists','reminders','meetings','learnings','risks','escalation','activity'];
+var FRMS=['task','proj','cl','cli','rem','learn','risk','esc','momview'];
+
+async function load(){
+  try{
+    var r=await window.storage.get('pmhub8');
+    if(r&&r.value){S=JSON.parse(r.value);}
+    else{var r7=await window.storage.get('pmhub7');if(r7&&r7.value){var old=JSON.parse(r7.value);['tasks','checklists','reminders','moms','learnings','log'].forEach(function(k){if(old[k])S[k]=old[k];});}}
+  }catch(e){}
+  ['tasks','projects','checklists','reminders','moms','learnings','risks','escalation','log'].forEach(function(k){if(!S[k])S[k]=[];});
+}
+async function persist(){try{await window.storage.set('pmhub8',JSON.stringify(S));}catch(e){}}
+function td(){return new Date().toISOString().split('T')[0];}
+function h(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2400);}
+function addLog(msg){S.log.unshift({msg:msg,ts:new Date().toISOString()});if(S.log.length>200)S.log.pop();}
+
+function freqLabel(f){
+  var map={'once':'One-time','daily':'Daily','weekly-mon':'Every Monday','weekly-tue':'Every Tuesday','weekly-wed':'Every Wednesday','weekly-thu':'Every Thursday','weekly-fri':'Every Friday','biweekly':'Bi-weekly','monthly':'Monthly'};
+  return map[f]||f||'One-time';
+}
+
+function getProjOpts(sel){
+  var o='<option value="">— No project —</option>';
+  S.projects.forEach(function(p){var sfx=p.status==='Completed'?' ✓':p.status==='On Hold'?' ⏸':'';o+='<option value="'+h(p.name)+'"'+(p.name===sel?' selected':'')+'>'+h(p.name)+sfx+'</option>';});
+  if(sel){var f=false;S.projects.forEach(function(p){if(p.name===sel)f=true;});if(!f&&sel)o+='<option value="'+h(sel)+'" selected>'+h(sel)+'</option>';}
+  return o;
+}
+
+function showOnly(pid){
+  PAGS.forEach(function(p){document.getElementById('pg-'+p).classList.remove('show');});
+  document.getElementById('pg-form').classList.remove('show');
+  document.getElementById(pid).classList.add('show');
+  document.getElementById('scr').scrollTop=0;
+}
+
+function goPage(el){
+  var page=el.getAttribute('data-page');
+  _curPage=page;
+  document.querySelectorAll('.sb-lnk').forEach(function(x){x.classList.remove('on');});
+  el.classList.add('on');
+  showOnly('pg-'+page);
+  var fn={
+    dashboard:renderDash,projects:renderProjects,tasks:renderTasks,board:renderBoard,
+    checklists:renderCL,reminders:renderRem,
+    meetings:function(){updateMOMBadge();meetTab('new',document.getElementById('tab-new'));document.getElementById('mt-proj').innerHTML=getProjOpts('');},
+    learnings:renderLearnings,risks:renderRisks,escalation:renderEsc,activity:renderActivity
+  };
+  if(fn[page])fn[page]();
+}
+
+function openForm(type,title){
+  _retPage=_curPage;
+  showOnly('pg-form');
+  FRMS.forEach(function(f){document.getElementById('frm-'+f).style.display='none';});
+  document.getElementById('frm-title').textContent=title;
+  document.getElementById('frm-'+type).style.display='block';
+}
+
+function cancelForm(){
+  FRMS.forEach(function(f){document.getElementById('frm-'+f).style.display='none';});
+  document.getElementById('pg-form').classList.remove('show');
+  var ret=_retPage;
+  if(ret==='meetings'){
+    document.getElementById('pg-meetings').classList.add('show');
+    updateMOMBadge();renderMOMs();meetTab('archive',document.getElementById('tab-arch'));
+  } else {
+    document.getElementById('pg-'+ret).classList.add('show');
+    var fn={dashboard:renderDash,projects:renderProjects,tasks:renderTasks,board:renderBoard,checklists:renderCL,reminders:renderRem,learnings:renderLearnings,risks:renderRisks,escalation:renderEsc,activity:renderActivity};
+    if(fn[ret])fn[ret]();
+  }
+  document.getElementById('scr').scrollTop=0;
+}
+
+function badges(){
+  var day=td();
+  var ut=S.tasks.filter(function(x){return x.status!=='done'&&x.due&&x.due<=day;}).length;
+  var nbt=document.getElementById('nb-t');nbt.textContent=ut;nbt.style.display=ut?'inline':'none';
+  var rd=S.reminders.filter(function(x){return !x.done&&x.date&&x.date<=day;}).length;
+  var nbr=document.getElementById('nb-r');nbr.textContent=rd;nbr.style.display=rd?'inline':'none';
+  var np=S.projects.filter(function(x){return x.status==='Active';}).length;
+  var nbp=document.getElementById('nb-p');nbp.textContent=np;nbp.style.display=np?'inline':'none';
+  var nri=S.risks.filter(function(x){return x.status==='Open';}).length;
+  var nbri=document.getElementById('nb-ri');nbri.textContent=nri;nbri.style.display=nri?'inline':'none';
+}
+
+/* ===== PROJECTS ===== */
+function openProjForm(id){
+  _eProj=id||null;
+  var p=id?S.projects.find(function(x){return x.id===id;}):null;
+  openForm('proj',id?'Edit project':'New project');
+  document.getElementById('pj-name').value=p?p.name:'';
+  document.getElementById('pj-status').value=p?(p.status||'Active'):'Active';
+  document.getElementById('pj-desc').value=p?(p.desc||''):'';
+  document.getElementById('pj-start').value=p?(p.start||''):'';
+  document.getElementById('pj-end').value=p?(p.end||''):'';
+  document.getElementById('pj-owner').value=p?(p.owner||''):'';
+  setTimeout(function(){document.getElementById('pj-name').focus();},80);
+}
+function saveProj(){
+  var name=document.getElementById('pj-name').value.trim();
+  if(!name){toast('Please enter a project name');return;}
+  var ex=_eProj?S.projects.find(function(x){return x.id===_eProj;}):null;
+  var oldName=ex?ex.name:null;
+  var proj={id:_eProj||String(Date.now()),name:name,status:document.getElementById('pj-status').value,desc:document.getElementById('pj-desc').value.trim(),start:document.getElementById('pj-start').value,end:document.getElementById('pj-end').value,owner:document.getElementById('pj-owner').value.trim(),created:ex?ex.created:new Date().toISOString()};
+  if(_eProj){
+    var i=S.projects.findIndex(function(x){return x.id===_eProj;});if(i>=0)S.projects[i]=proj;
+    if(oldName&&oldName!==name){
+      S.tasks.forEach(function(t){if(t.project===oldName)t.project=name;});
+      S.checklists.forEach(function(c){if(c.project===oldName)c.project=name;});
+      S.reminders.forEach(function(r){if(r.project===oldName)r.project=name;});
+      S.learnings.forEach(function(l){if(l.project===oldName)l.project=name;});
+      S.moms.forEach(function(m){if(m.proj===oldName)m.proj=name;});
+      S.risks.forEach(function(r){if(r.project===oldName)r.project=name;});
+      S.escalation.forEach(function(e){if(e.project===oldName)e.project=name;});
+    }
+  } else {S.projects.unshift(proj);}
+  addLog((_eProj?'Updated':'Created')+' project: '+name);
+  persist();badges();cancelForm();toast(_eProj?'Project updated ✓':'Project created ✓');
+}
+function delProj(id){
+  var p=S.projects.find(function(x){return x.id===id;});
+  if(!p||!confirm('Delete "'+p.name+'"? Linked tasks and records will NOT be deleted.'))return;
+  S.projects=S.projects.filter(function(x){return x.id!==id;});
+  addLog('Deleted project: '+p.name);persist();badges();renderProjects();toast('Deleted');
+}
+function renderProjects(){
+  var active=S.projects.filter(function(x){return x.status==='Active';}).length;
+  var hold=S.projects.filter(function(x){return x.status==='On Hold';}).length;
+  var total=S.projects.length;
+  document.getElementById('pj-summary').innerHTML=total?'<div class="proj-summary"><div class="psum psum0"><div class="psumn">'+active+'</div><div class="psuml">Active</div></div><div class="psum psum1"><div class="psumn">'+(total-S.projects.filter(function(x){return x.status==='Completed';}).length)+'</div><div class="psuml">In progress</div></div><div class="psum psum2"><div class="psumn">'+hold+'</div><div class="psuml">On hold</div></div></div>':'';
+  if(!total){document.getElementById('pj-list').innerHTML='<div class="empty"><div class="empi">◉</div><div class="empm">No projects yet — click "+ New Project"</div></div>';return;}
+  var order={'Active':0,'Planning':1,'On Hold':2,'Completed':3};
+  var sorted=S.projects.slice().sort(function(a,b){return(order[a.status]||1)-(order[b.status]||1);});
+  document.getElementById('pj-list').innerHTML=sorted.map(function(p){
+    var cc={'Active':'cg2','Planning':'cg','On Hold':'ca','Completed':'cb'}[p.status]||'cg';
+    var tasks=S.tasks.filter(function(x){return x.project===p.name;});
+    var doneT=tasks.filter(function(x){return x.status==='done';}).length,totalT=tasks.length;
+    var pct=totalT?Math.round(doneT/totalT*100):0,pid=p.id;
+    return '<div class="pcard"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px"><div style="flex:1;min-width:0"><div class="pcard-name">'+h(p.name)+'</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center"><span class="chip '+cc+'">'+h(p.status)+'</span>'+(p.start||p.end?'<span class="chip cg">'+(p.start||'?')+' → '+(p.end||'ongoing')+'</span>':'')+(p.owner?'<span class="chip cp">'+h(p.owner)+'</span>':'')+(totalT?'<span class="chip cb">'+doneT+'/'+totalT+' tasks · '+pct+'%</span>':'<span class="chip cg">No tasks yet</span>')+'</div>'+(p.desc?'<div style="font-size:13px;color:#64748B;line-height:1.5;margin-bottom:8px">'+h(p.desc)+'</div>':'')+(totalT?'<div style="height:5px;background:#F1F5F9;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#2563EB;border-radius:3px;transition:width .3s"></div></div>':'')+'</div><div style="display:flex;gap:4px;flex-shrink:0"><button class="ic" onclick="openProjForm(\''+pid+'\')" title="Edit">✎</button><button class="ic del" onclick="delProj(\''+pid+'\')" title="Delete">✕</button></div></div></div>';
+  }).join('');
+}
+
+/* ===== TASKS ===== */
+function openTaskForm(id){
+  _eTask=id||null;
+  var t=id?S.tasks.find(function(x){return x.id===id;}):null;
+  openForm('task',id?'Edit task':'New task');
+  document.getElementById('ti-proj').innerHTML=getProjOpts(t?t.project||'':'');
+  document.getElementById('ti-name').value=t?t.title:'';
+  document.getElementById('ti-owner').value=t?(t.assignee||''):'';
+  document.getElementById('ti-pri').value=t?(t.priority||'medium'):'medium';
+  document.getElementById('ti-due').value=t?(t.due||''):'';
+  document.getElementById('ti-st').value=t?(t.status||'todo'):'todo';
+  document.getElementById('ti-notes').value=t?(t.notes||''):'';
+  setTimeout(function(){document.getElementById('ti-name').focus();},80);
+}
+function saveTask(){
+  var name=document.getElementById('ti-name').value.trim();
+  if(!name){toast('Please enter a task title');document.getElementById('ti-name').focus();return;}
+  var ex=_eTask?S.tasks.find(function(x){return x.id===_eTask;}):null;
+  var task={id:_eTask||String(Date.now()),title:name,project:document.getElementById('ti-proj').value,assignee:document.getElementById('ti-owner').value.trim(),priority:document.getElementById('ti-pri').value,due:document.getElementById('ti-due').value,status:document.getElementById('ti-st').value,notes:document.getElementById('ti-notes').value.trim(),created:ex?ex.created:new Date().toISOString()};
+  if(_eTask){var i=S.tasks.findIndex(function(x){return x.id===_eTask;});if(i>=0)S.tasks[i]=task;}
+  else S.tasks.unshift(task);
+  addLog((_eTask?'Updated':'Added')+' task: '+name);
+  persist();badges();cancelForm();toast(_eTask?'Task updated ✓':'Task added ✓');
+}
+function toggleTask(id){
+  var t=S.tasks.find(function(x){return x.id===id;});if(!t)return;
+  t.status=t.status==='done'?'todo':'done';
+  addLog((t.status==='done'?'Completed':'Reopened')+': '+t.title);
+  persist();badges();
+  if(_curPage==='dashboard')renderDash();else if(_curPage==='tasks')renderTasks();else if(_curPage==='board')renderBoard();
+  toast(t.status==='done'?'Completed ✓':'Reopened');
+}
+function delTask(id){
+  var t=S.tasks.find(function(x){return x.id===id;});
+  if(!t||!confirm('Delete "'+t.title+'"?'))return;
+  S.tasks=S.tasks.filter(function(x){return x.id!==id;});
+  addLog('Deleted: '+t.title);persist();badges();
+  if(_curPage==='dashboard')renderDash();else if(_curPage==='tasks')renderTasks();else if(_curPage==='board')renderBoard();
+  toast('Task deleted');
+}
+function tRow(t){
+  var day=td(),ov=t.due&&t.due<day&&t.status!=='done',tod=t.due===day&&t.status!=='done';
+  var pd={high:'pdh',medium:'pdm',low:'pdl'}[t.priority]||'pdm';
+  var sm={todo:{l:'To do',c:'cg'},inprogress:{l:'In progress',c:'cb'},review:{l:'In review',c:'ca'},done:{l:'Done',c:'cg2'}};
+  var st=sm[t.status]||sm.todo,id=t.id;
+  return '<div class="tc '+(t.status==='done'?'done':'')+' '+(ov?'ov':tod?'tod':'')+'">'
+    +'<div class="pd '+pd+'" style="margin-top:4px"></div>'
+    +'<div class="chk '+(t.status==='done'?'k':'')+'" onclick="toggleTask(\''+id+'\')"></div>'
+    +'<div class="tcb"><div class="tct">'+h(t.title)+'</div>'
+    +'<div class="tcm"><span class="chip '+st.c+'">'+st.l+'</span>'
+    +(t.project?'<span class="chip cb">'+h(t.project)+'</span>':'')
+    +(t.assignee?'<span class="chip cp">'+h(t.assignee)+'</span>':'')
+    +(t.due?'<span class="chip '+(ov?'cr':tod?'ca':'cg')+'">'+(ov?'⚠ Overdue':tod?'Due today':t.due)+'</span>':'')
+    +'</div></div>'
+    +'<div class="tca"><button class="ic" onclick="openTaskForm(\''+id+'\')" title="Edit">✎</button>'
+    +'<button class="ic del" onclick="delTask(\''+id+'\')" title="Delete">✕</button></div></div>';
+}
+function renderDash(){
+  var day=td();
+  document.getElementById('s0').textContent=S.tasks.filter(function(x){return x.status!=='done';}).length;
+  document.getElementById('s1').textContent=S.tasks.filter(function(x){return x.due===day&&x.status!=='done';}).length;
+  document.getElementById('s2').textContent=S.tasks.filter(function(x){return x.due&&x.due<day&&x.status!=='done';}).length;
+  document.getElementById('s3').textContent=S.tasks.filter(function(x){return x.status==='done';}).length;
+  var urg=S.tasks.filter(function(x){return x.due&&x.due<=day&&x.status!=='done';}).sort(function(a,b){return a.due>b.due?1:-1;});
+  var nxt=S.tasks.filter(function(x){return x.status!=='done'&&(!x.due||x.due>day);}).sort(function(a,b){return(!a.due&&b.due)?1:(!b.due&&a.due)?-1:a.due>b.due?1:-1;}).slice(0,4);
+  document.getElementById('d-urg').innerHTML=urg.length?urg.map(tRow).join(''):'<div class="empty"><div class="empi">✓</div><div class="empm">Nothing urgent!</div></div>';
+  document.getElementById('d-nxt').innerHTML=nxt.length?nxt.map(tRow).join(''):'<div class="empty"><div class="empi">○</div><div class="empm">No upcoming tasks</div></div>';
+  var remDue=S.reminders.filter(function(x){return !x.done&&x.date&&x.date<=day;}).sort(function(a,b){return a.date>b.date?1:-1;});
+  document.getElementById('d-rem').innerHTML=remDue.length?remDue.map(function(r){
+    var isOv=r.date<day,isTod=r.date===day;
+    return '<div class="drm '+(isOv?'ov':isTod?'tod':'')+'"><div style="font-size:11px;font-weight:700;color:#64748B;min-width:80px;flex-shrink:0">'+r.date+'</div><div style="font-size:13px;font-weight:500;flex:1">'+h(r.text)+'</div>'+(r.freq&&r.freq!=='once'?'<span class="rmc-freq">'+freqLabel(r.freq)+'</span>':'')+(r.project?'<span class="chip cb">'+h(r.project)+'</span>':'')+(isOv?'<span class="chip cr">Overdue</span>':isTod?'<span class="chip ca">Today</span>':'')+'</div>';
+  }).join(''):'<div class="empty"><div class="empi">◷</div><div class="empm">No reminders due</div></div>';
+}
+function renderTasks(){
+  var q=(document.getElementById('fq').value||'').toLowerCase();
+  var fst=document.getElementById('fst').value,fpri=document.getElementById('fpri').value,fp=document.getElementById('fproj-t').value;
+  var projs=[];S.tasks.forEach(function(x){if(x.project&&projs.indexOf(x.project)<0)projs.push(x.project);});
+  var sel=document.getElementById('fproj-t'),cv=sel.value;
+  sel.innerHTML='<option value="">All projects</option>'+projs.map(function(p){return'<option value="'+h(p)+'"'+(p===cv?' selected':'')+'>'+h(p)+'</option>';}).join('');
+  var list=S.tasks.slice();
+  if(fst==='open')list=list.filter(function(x){return x.status!=='done';});
+  else if(fst==='done')list=list.filter(function(x){return x.status==='done';});
+  if(fpri)list=list.filter(function(x){return x.priority===fpri;});
+  if(fp)list=list.filter(function(x){return x.project===fp;});
+  if(q)list=list.filter(function(x){return(x.title+' '+(x.assignee||'')+' '+(x.project||'')).toLowerCase().indexOf(q)>=0;});
+  document.getElementById('task-list').innerHTML=list.length?list.map(tRow).join(''):'<div class="empty"><div class="empi">○</div><div class="empm">No tasks yet — click "+ Add Task"</div></div>';
+}
+function renderBoard(){
+  var cols=[{k:'todo',l:'To do'},{k:'inprogress',l:'In progress'},{k:'review',l:'In review'},{k:'done',l:'Done'}];
+  document.getElementById('board-view').innerHTML=cols.map(function(c){
+    var tasks=S.tasks.filter(function(x){return x.status===c.k;});
+    return '<div class="bcol"><div class="bcolh">'+c.l+'<span class="chip cg">'+tasks.length+'</span></div>'
+    +tasks.map(function(t){return'<div class="bcard" onclick="openTaskForm(\''+t.id+'\')"><div style="font-size:13px;font-weight:500;margin-bottom:5px;color:#0F172A">'+h(t.title)+'</div><div style="display:flex;gap:4px;flex-wrap:wrap">'+(t.project?'<span class="chip cb" style="font-size:10px">'+h(t.project)+'</span>':'')+(t.assignee?'<span class="chip cp" style="font-size:10px">'+h(t.assignee)+'</span>':'')+(t.due?'<span class="chip cg" style="font-size:10px">'+t.due+'</span>':'')+'</div></div>';}).join('')
+    +(tasks.length?'':'<div style="font-size:11px;color:#94A3B8;padding:6px 2px">Empty</div>')+'</div>';
+  }).join('');
+}
+
+/* ===== CHECKLISTS ===== */
+function openCLForm(id){
+  _eCL=id||null;var cl=id?S.checklists.find(function(x){return x.id===id;}):null;
+  openForm('cl',id?'Edit checklist':'New checklist');
+  document.getElementById('cl-proj').innerHTML=getProjOpts(cl?cl.project||'':'');
+  document.getElementById('cl-name').value=cl?cl.name:'';
+  setTimeout(function(){document.getElementById('cl-name').focus();},80);
+}
+function saveCL(){
+  var name=document.getElementById('cl-name').value.trim();
+  if(!name){toast('Please enter a checklist name');return;}
+  if(_eCL){var cl=S.checklists.find(function(x){return x.id===_eCL;});if(cl){cl.name=name;cl.project=document.getElementById('cl-proj').value;}}
+  else S.checklists.unshift({id:String(Date.now()),name:name,project:document.getElementById('cl-proj').value,items:[]});
+  persist();cancelForm();toast(_eCL?'Checklist updated ✓':'Checklist created ✓');
+}
+function openCLIForm(clId,itId){
+  _eCLcl=clId;_eCLI=itId||null;
+  var cl=S.checklists.find(function(x){return x.id===clId;});
+  var it=itId?cl.items.find(function(x){return x.id===itId;}):null;
+  openForm('cli',itId?'Edit item':'Add item');
+  document.getElementById('cli-txt').value=it?it.text:'';
+  document.getElementById('cli-eta').value=it?(it.eta||''):'';
+  document.getElementById('cli-own').value=it?(it.owner||''):'';
+  document.getElementById('cli-cmt').value=it?(it.comment||''):'';
+  setTimeout(function(){document.getElementById('cli-txt').focus();},80);
+}
+function saveCLI(){
+  var text=document.getElementById('cli-txt').value.trim();
+  if(!text){toast('Please enter item text');return;}
+  var cl=S.checklists.find(function(x){return x.id===_eCLcl;});if(!cl)return;
+  var ex=_eCLI?cl.items.find(function(x){return x.id===_eCLI;}):null;
+  var item={id:_eCLI||String(Date.now()),text:text,eta:document.getElementById('cli-eta').value,owner:document.getElementById('cli-own').value.trim(),comment:document.getElementById('cli-cmt').value.trim(),done:ex?ex.done:false};
+  if(_eCLI){var i=cl.items.findIndex(function(x){return x.id===_eCLI;});if(i>=0)cl.items[i]=item;}
+  else cl.items.push(item);
+  persist();cancelForm();toast('Item saved ✓');
+}
+function toggleCLI(clId,itId){
+  var cl=S.checklists.find(function(x){return x.id===clId;});
+  var it=cl.items.find(function(x){return x.id===itId;});
+  it.done=!it.done;addLog((it.done?'Checked':'Unchecked')+': '+it.text);persist();renderCL();
+}
+function delCLI(clId,itId){var cl=S.checklists.find(function(x){return x.id===clId;});cl.items=cl.items.filter(function(x){return x.id!==itId;});persist();renderCL();}
+function delCL(id){if(!confirm('Delete this checklist?'))return;S.checklists=S.checklists.filter(function(x){return x.id!==id;});persist();renderCL();toast('Deleted');}
+function renderCL(){
+  if(!S.checklists.length){document.getElementById('cl-list').innerHTML='<div class="empty"><div class="empi">☑</div><div class="empm">No checklists yet — click "+ New Checklist"</div></div>';return;}
+  document.getElementById('cl-list').innerHTML=S.checklists.map(function(cl){
+    var done=cl.items.filter(function(x){return x.done;}).length,total=cl.items.length,pct=total?Math.round(done/total*100):0,clid=cl.id;
+    return '<div class="clw"><div class="clh"><div class="clhn">'+h(cl.name)+(cl.project?'<span class="chip cb" style="margin-left:8px;font-size:11px">'+h(cl.project)+'</span>':'')+'</div><span class="clhp">'+pct+'% · '+done+'/'+total+'</span><button class="btn xs" onclick="openCLIForm(\''+clid+'\')" style="margin-left:8px">+ Item</button><button class="ic" onclick="openCLForm(\''+clid+'\')" title="Edit" style="margin-left:4px">✎</button><button class="ic del" onclick="delCL(\''+clid+'\')" title="Delete">✕</button></div><div class="clpb"><div class="clpf" style="width:'+pct+'%"></div></div>'
+    +(total===0?'<div style="padding:14px 18px;font-size:13px;color:#94A3B8">No items — click "+ Item" to add one</div>'
+    :cl.items.map(function(it){
+      var itid=it.id;
+      return '<div class="clr '+(it.done?'cld':'')+'"><input type="checkbox" class="clcb" '+(it.done?'checked':'')+' onchange="toggleCLI(\''+clid+'\',\''+itid+'\')"><div class="clrb"><div class="clrt">'+h(it.text)+'</div><div class="clrs">'+(it.eta?'<span class="chip ca" style="font-size:11px">📅 '+it.eta+'</span>':'')+(it.owner?'<span class="chip cp" style="font-size:11px">👤 '+h(it.owner)+'</span>':'')+(it.comment?'<span class="clcmt" title="'+h(it.comment)+'">💬 '+h(it.comment)+'</span>':'')+'</div></div><div class="clra"><button class="ic" onclick="openCLIForm(\''+clid+'\',\''+itid+'\')" title="Edit">✎</button><button class="ic del" onclick="delCLI(\''+clid+'\',\''+itid+'\')" title="Delete">✕</button></div></div>';
+    }).join(''))+'</div>';
+  }).join('');
+}
+
+/* ===== REMINDERS ===== */
+function openRemForm(id){
+  _eRem=id||null;var r=id?S.reminders.find(function(x){return x.id===id;}):null;
+  openForm('rem',id?'Edit reminder':'New reminder');
+  document.getElementById('ri-proj').innerHTML=getProjOpts(r?r.project||'':'');
+  document.getElementById('ri-txt').value=r?r.text:'';
+  document.getElementById('ri-date').value=r?(r.date||''):'';
+  document.getElementById('ri-cat').value=r?(r.category||''):'';
+  document.getElementById('ri-freq').value=r?(r.freq||'once'):'once';
+  setTimeout(function(){document.getElementById('ri-txt').focus();},80);
+}
+function saveRem(){
+  var text=document.getElementById('ri-txt').value.trim();
+  if(!text){toast('Please enter reminder text');return;}
+  var ex=_eRem?S.reminders.find(function(x){return x.id===_eRem;}):null;
+  var rem={id:_eRem||String(Date.now()),text:text,date:document.getElementById('ri-date').value,category:document.getElementById('ri-cat').value.trim(),project:document.getElementById('ri-proj').value,freq:document.getElementById('ri-freq').value,done:ex?ex.done:false};
+  if(_eRem){var i=S.reminders.findIndex(function(x){return x.id===_eRem;});if(i>=0)S.reminders[i]=rem;}
+  else S.reminders.unshift(rem);
+  addLog('Reminder: '+text);persist();badges();cancelForm();toast(_eRem?'Reminder updated ✓':'Reminder set ✓');
+}
+function toggleRem(id){var r=S.reminders.find(function(x){return x.id===id;});if(!r)return;r.done=!r.done;persist();badges();renderRem();if(_curPage==='dashboard')renderDash();}
+function delRem(id){if(!confirm('Delete?'))return;S.reminders=S.reminders.filter(function(x){return x.id!==id;});persist();badges();renderRem();if(_curPage==='dashboard')renderDash();}
+function renderRem(){
+  var day=td();
+  if(!S.reminders.length){document.getElementById('rem-list').innerHTML='<div class="empty"><div class="empi">◷</div><div class="empm">No reminders yet — click "+ Add Reminder"</div></div>';return;}
+  var recurring=S.reminders.filter(function(r){return r.freq&&r.freq!=='once';});
+  var onetime=S.reminders.filter(function(r){return !r.freq||r.freq==='once';});
+  var sorted=onetime.slice().sort(function(a,b){if(!a.date&&!b.date)return 0;if(!a.date)return 1;if(!b.date)return -1;return a.date>b.date?1:-1;});
+  function remRow(r){
+    var isOv=r.date&&r.date<day&&!r.done,isTod=r.date===day&&!r.done,rid=r.id;
+    return '<div class="rmc '+(isOv?'ov':isTod?'tod':'')+' '+(r.done?'rdone':'')+'"><div class="rmcd">'+(r.date||'—')+'</div><div style="flex:1;min-width:0"><div class="rmct">'+h(r.text)+'</div><div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">'+(r.freq&&r.freq!=='once'?'<span class="rmc-freq">'+freqLabel(r.freq)+'</span>':'')+(r.project?'<span class="chip cb">'+h(r.project)+'</span>':'')+(r.category?'<span class="chip ct">'+h(r.category)+'</span>':'')+(isOv?'<span class="chip cr">Overdue</span>':isTod?'<span class="chip ca">Due today</span>':'')+(r.done?'<span class="chip cg2">Done</span>':'')+'</div></div><div class="rmca"><button class="ic" onclick="toggleRem(\''+rid+'\')" title="'+(r.done?'Reopen':'Done')+'">'+(r.done?'↩':'✓')+'</button><button class="ic" onclick="openRemForm(\''+rid+'\')" title="Edit">✎</button><button class="ic del" onclick="delRem(\''+rid+'\')" title="Delete">✕</button></div></div>';
+  }
+  var html='';
+  if(recurring.length){html+='<div class="sec" style="margin-top:0">🔁 Recurring reminders</div>'+recurring.map(remRow).join('');}
+  if(sorted.length){html+='<div class="sec">📅 One-time reminders</div>'+sorted.map(remRow).join('');}
+  document.getElementById('rem-list').innerHTML=html||'<div class="empty"><div class="empi">◷</div><div class="empm">No reminders</div></div>';
+}
+
+/* ===== MEETINGS ===== */
+function meetTab(t,el){
+  document.querySelectorAll('#pg-meetings .tabb').forEach(function(x){x.classList.remove('on');});
+  el.classList.add('on');
+  document.getElementById('mt-new').style.display=t==='new'?'block':'none';
+  document.getElementById('mt-arch').style.display=t==='archive'?'block':'none';
+  if(t==='archive')renderMOMs();
+}
+function updateMOMBadge(){
+  var n=S.moms.length;
+  document.getElementById('nb-m').textContent=n;document.getElementById('nb-m').style.display=n?'inline':'none';
+  document.getElementById('mom-ct').textContent=n;
+}
+async function generateMOM(){
+  var title=document.getElementById('mt-title').value.trim(),notes=document.getElementById('mt-notes').value.trim();
+  if(!title){toast('Please enter a meeting title');document.getElementById('mt-title').focus();return;}
+  if(!notes){toast('Please enter your meeting notes');document.getElementById('mt-notes').focus();return;}
+  var date=document.getElementById('mt-date').value||td(),att=document.getElementById('mt-att').value.trim(),fac=document.getElementById('mt-fac').value.trim(),proj=document.getElementById('mt-proj').value;
+  var btn=document.getElementById('gen-btn');btn.innerHTML='<span class="spin"></span> Generating...';btn.disabled=true;
+  document.getElementById('mom-result').innerHTML='<div class="aibox"><div class="ailbl"><span class="spin"></span> Structuring your minutes...</div></div>';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:'Convert these raw meeting notes into a professional MOM. Plain text only, no markdown.\n\nMeeting: '+title+'\nDate: '+date+'\nAttendees: '+(att||'Not specified')+'\nFacilitator: '+(fac||'Not specified')+'\nProject: '+(proj||'Not specified')+'\n\nNotes:\n'+notes+'\n\nWrite: MEETING OVERVIEW, KEY DISCUSSION POINTS, DECISIONS MADE, ACTION ITEMS (Owner + Due date), BLOCKERS/RISKS, NEXT STEPS, NEXT MEETING.'}]})});
+    var data=await res.json();
+    var momText=data.content?data.content.map(function(x){return x.text||'';}).join(''):'Generation failed.';
+    _pMOM={title:title,date:date,att:att,fac:fac,proj:proj,notes:notes,mom:momText};
+    document.getElementById('mom-result').innerHTML='<div class="aibox"><div class="ailbl">✦ AI-generated MOM — review then save or copy</div><div class="aibdy">'+h(momText)+'</div><div class="aiacts"><button class="btn suc sm" onclick="commitMOM()">Save to archive</button><button class="btn sm" onclick="copyMOMP(false)">Copy MOM</button><button class="btn sm" onclick="copyMOMP(true)">Copy with subject line</button></div></div>';
+    addLog('MOM generated: '+title);persist();updateMOMBadge();
+  }catch(e){document.getElementById('mom-result').innerHTML='<div class="aibox" style="border-color:#FECACA;background:#FEF2F2"><div class="ailbl" style="color:#DC2626">Error — please try again</div></div>';}
+  btn.innerHTML='✦ Generate MOM with AI';btn.disabled=false;
+}
+function commitMOM(){
+  if(!_pMOM)return;
+  S.moms.unshift({id:String(Date.now()),title:_pMOM.title,date:_pMOM.date,att:_pMOM.att,fac:_pMOM.fac,proj:_pMOM.proj,notes:_pMOM.notes,mom:_pMOM.mom,created:new Date().toISOString()});
+  _pMOM=null;persist();updateMOMBadge();
+  document.getElementById('mom-result').innerHTML='';
+  ['mt-title','mt-att','mt-fac','mt-notes'].forEach(function(i){document.getElementById(i).value='';});
+  document.getElementById('mt-date').value=td();document.getElementById('mt-proj').innerHTML=getProjOpts('');
+  toast('MOM saved to archive ✓');
+}
+function saveDraft(){
+  var title=document.getElementById('mt-title').value.trim();if(!title){toast('Please enter a meeting title');return;}
+  S.moms.unshift({id:String(Date.now()),title:title,date:document.getElementById('mt-date').value||td(),proj:document.getElementById('mt-proj').value,att:document.getElementById('mt-att').value.trim(),fac:document.getElementById('mt-fac').value.trim(),notes:document.getElementById('mt-notes').value.trim(),mom:'',draft:true,created:new Date().toISOString()});
+  persist();updateMOMBadge();var el=document.getElementById('draft-msg');el.textContent='Draft saved';setTimeout(function(){el.textContent='';},2500);toast('Draft saved ✓');
+}
+function copyMOMP(ws){
+  if(!_pMOM)return;
+  navigator.clipboard.writeText(ws?('Subject: MOM — '+_pMOM.title+' ('+_pMOM.date+')\n\n'+_pMOM.mom):_pMOM.mom);toast('Copied ✓');
+}
+function renderMOMs(){
+  var q=(document.getElementById('maq').value||'').toLowerCase(),fp=document.getElementById('ma-proj').value;
+  var projs=[];S.moms.forEach(function(m){if(m.proj&&projs.indexOf(m.proj)<0)projs.push(m.proj);});
+  var sel=document.getElementById('ma-proj'),cv=sel.value;
+  sel.innerHTML='<option value="">All projects</option>'+projs.map(function(p){return'<option value="'+h(p)+'"'+(p===cv?' selected':'')+'>'+h(p)+'</option>';}).join('');
+  var list=S.moms.slice();
+  if(fp)list=list.filter(function(m){return m.proj===fp;});
+  if(q)list=list.filter(function(m){return(m.title+' '+(m.mom||m.notes||'')+' '+(m.att||'')).toLowerCase().indexOf(q)>=0;});
+  if(!list.length){document.getElementById('mom-list').innerHTML='<div class="empty"><div class="empi">○</div><div class="empm">No meetings yet — use "New meeting" tab</div></div>';return;}
+  var byDate={};list.forEach(function(m){var d=m.date||'No date';if(!byDate[d])byDate[d]=[];byDate[d].push(m);});
+  var dates=Object.keys(byDate).sort(function(a,b){return a>b?-1:1;});
+  document.getElementById('mom-list').innerHTML=dates.map(function(date){
+    return '<div style="font-size:12px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid #E2E8F0">'+date+'</div>'
+    +byDate[date].map(function(m){
+      var mid=m.id,ac=m.att?m.att.split(',').filter(function(x){return x.trim();}).length:0;
+      return '<div class="card"><div class="cardt">'+h(m.title)+(m.draft?'<span class="chip ca" style="vertical-align:middle;margin-left:8px;font-size:11px">draft</span>':'')+'</div><div class="cardm">'+(m.proj?'<span class="chip cb">'+h(m.proj)+'</span>':'')+(ac?'<span class="chip cg">'+ac+' attendee'+(ac>1?'s':'')+'</span>':'')+(m.fac?'<span class="chip cp">'+h(m.fac)+'</span>':'')+'</div>'+(m.mom?'<div class="cardb" style="max-height:55px;overflow:hidden;font-size:12px">'+h(m.mom.substring(0,200))+'...</div>':'<div style="font-size:12px;color:#94A3B8;font-style:italic">Draft — no MOM yet</div>')+'<div class="cardf"><button class="btn sm" onclick="viewMOM(\''+mid+'\')">View full</button><button class="btn sm" onclick="copyMOMById(\''+mid+'\')">Copy for email</button><button class="btn sm dan" onclick="delMOM(\''+mid+'\')">Delete</button></div></div>';
+    }).join('');
+  }).join('');
+}
+function viewMOM(id){
+  _vMOM=id;var m=S.moms.find(function(x){return x.id===id;});if(!m)return;
+  openForm('momview',m.title+(m.draft?' (draft)':''));
+  document.getElementById('mv-meta').textContent=[m.date,m.proj,m.att?'Attendees: '+m.att:'',m.fac?'Facilitator: '+m.fac:''].filter(Boolean).join(' · ');
+  document.getElementById('mv-body').textContent=m.mom||m.notes||'No content';
+}
+function copyMOMView(){if(_vMOM)copyMOMById(_vMOM);}
+function copyMOMById(id){var m=S.moms.find(function(x){return x.id===id;});if(!m)return;navigator.clipboard.writeText('Subject: MOM — '+m.title+' ('+(m.date||'')+')\n\n'+(m.mom||m.notes||''));toast('Copied ✓');}
+function delMOM(id){if(!confirm('Delete?'))return;S.moms=S.moms.filter(function(x){return x.id!==id;});persist();renderMOMs();updateMOMBadge();toast('Deleted');}
+
+/* ===== LEARNINGS ===== */
+function openLearnForm(){
+  ['li-title','li-cat','li-detail','li-action'].forEach(function(i){document.getElementById(i).value='';});
+  openForm('learn','Add learning');
+  document.getElementById('li-proj').innerHTML=getProjOpts('');
+  setTimeout(function(){document.getElementById('li-title').focus();},80);
+}
+function saveLearning(){
+  var title=document.getElementById('li-title').value.trim();if(!title){toast('Please enter a title');return;}
+  S.learnings.unshift({id:String(Date.now()),title:title,category:document.getElementById('li-cat').value.trim()||'General',project:document.getElementById('li-proj').value,date:td(),detail:document.getElementById('li-detail').value.trim(),action:document.getElementById('li-action').value.trim(),created:new Date().toISOString()});
+  addLog('Learning: '+title);persist();cancelForm();toast('Learning saved ✓');
+}
+async function aiExpand(){
+  var title=document.getElementById('li-title').value.trim();if(!title){toast('Add a title first');return;}
+  var btn=document.getElementById('ai-exp-btn');btn.innerHTML='<span class="spin"></span>';btn.disabled=true;
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:'TPM learning: "'+title+'". Context: '+(document.getElementById('li-detail').value||'none')+'. Briefly: (1) why it matters for a TPM, (2) how to apply it, (3) key pitfall. Under 150 words, plain text.'}]})});
+    var data=await res.json();
+    var txt=data.content?data.content.map(function(x){return x.text||'';}).join(''):'';
+    var cur=document.getElementById('li-detail').value.trim();
+    document.getElementById('li-detail').value=(cur?cur+'\n\n--- AI Expansion ---\n':'')+txt;
+    toast('AI expanded ✓');
+  }catch(e){toast('Error — please try again');}
+  btn.innerHTML='✦ Expand with AI';btn.disabled=false;
+}
+function delLearn(id){if(!confirm('Delete?'))return;S.learnings=S.learnings.filter(function(x){return x.id!==id;});persist();renderLearnings();toast('Deleted');}
+function renderLearnings(){
+  var q=(document.getElementById('lq').value||'').toLowerCase(),lcat=document.getElementById('lcat').value;
+  var cats=[];S.learnings.forEach(function(x){if(x.category&&cats.indexOf(x.category)<0)cats.push(x.category);});
+  var sel=document.getElementById('lcat'),cv=sel.value;
+  sel.innerHTML='<option value="">All categories</option>'+cats.map(function(c){return'<option value="'+h(c)+'"'+(c===cv?' selected':'')+'>'+h(c)+'</option>';}).join('');
+  var list=S.learnings.slice();
+  if(lcat)list=list.filter(function(x){return x.category===lcat;});
+  if(q)list=list.filter(function(x){return(x.title+' '+(x.detail||'')+' '+(x.action||'')+' '+(x.project||'')+' '+(x.category||'')).toLowerCase().indexOf(q)>=0;});
+  document.getElementById('learn-list').innerHTML=list.length?list.map(function(l){
+    var lid=l.id;
+    return '<div class="card"><div class="cardt">'+h(l.title)+'</div><div class="cardm"><span class="chip cp">'+h(l.category)+'</span>'+(l.project?'<span class="chip cb">'+h(l.project)+'</span>':'')+'<span class="chip cg">'+l.date+'</span></div>'+(l.detail?'<div class="cardb">'+h(l.detail)+'</div>':'')+(l.action?'<div style="margin-top:8px;font-size:12px;padding:6px 10px;background:#EFF6FF;border-radius:8px;color:#1D4ED8;font-weight:600">→ '+h(l.action)+'</div>':'')+'<div class="cardf"><button class="btn sm dan" onclick="delLearn(\''+lid+'\')">Delete</button></div></div>';
+  }).join(''):'<div class="empty"><div class="empi">◈</div><div class="empm">No learnings yet — click "+ Add Learning"</div></div>';
+}
+
+/* ===== RISKS ===== */
+function openRiskForm(id){
+  _eRisk=id||null;var r=id?S.risks.find(function(x){return x.id===id;}):null;
+  openForm('risk',id?'Edit risk / dependency':'New risk / dependency');
+  document.getElementById('rk-proj').innerHTML=getProjOpts(r?r.project||'':'');
+  document.getElementById('rk-title').value=r?r.title:'';
+  document.getElementById('rk-type').value=r?(r.type||'Risk'):'Risk';
+  document.getElementById('rk-level').value=r?(r.level||'Medium'):'Medium';
+  document.getElementById('rk-status').value=r?(r.status||'Open'):'Open';
+  document.getElementById('rk-owner').value=r?(r.owner||''):'';
+  document.getElementById('rk-impact').value=r?(r.impact||''):'';
+  document.getElementById('rk-mitigation').value=r?(r.mitigation||''):'';
+  document.getElementById('rk-due').value=r?(r.due||''):'';
+  setTimeout(function(){document.getElementById('rk-title').focus();},80);
+}
+function saveRisk(){
+  var title=document.getElementById('rk-title').value.trim();
+  if(!title){toast('Please enter a title');return;}
+  var ex=_eRisk?S.risks.find(function(x){return x.id===_eRisk;}):null;
+  var risk={id:_eRisk||String(Date.now()),title:title,type:document.getElementById('rk-type').value,level:document.getElementById('rk-level').value,status:document.getElementById('rk-status').value,project:document.getElementById('rk-proj').value,owner:document.getElementById('rk-owner').value.trim(),impact:document.getElementById('rk-impact').value.trim(),mitigation:document.getElementById('rk-mitigation').value.trim(),due:document.getElementById('rk-due').value,created:ex?ex.created:new Date().toISOString()};
+  if(_eRisk){var i=S.risks.findIndex(function(x){return x.id===_eRisk;});if(i>=0)S.risks[i]=risk;}
+  else S.risks.unshift(risk);
+  addLog((_eRisk?'Updated':'Added')+' risk: '+title);persist();badges();cancelForm();toast(_eRisk?'Updated ✓':'Saved ✓');
+}
+function delRisk(id){if(!confirm('Delete?'))return;S.risks=S.risks.filter(function(x){return x.id!==id;});persist();badges();renderRisks();toast('Deleted');}
+function renderRisks(){
+  var ft=document.getElementById('frisk-type').value;
+  var fl=document.getElementById('frisk-level').value;
+  var fp=document.getElementById('frisk-proj').value;
+  var fs=document.getElementById('frisk-status').value;
+  var projs=[];S.risks.forEach(function(x){if(x.project&&projs.indexOf(x.project)<0)projs.push(x.project);});
+  var sel=document.getElementById('frisk-proj'),cv=sel.value;
+  sel.innerHTML='<option value="">All projects</option>'+projs.map(function(p){return'<option value="'+h(p)+'"'+(p===cv?' selected':'')+'>'+h(p)+'</option>';}).join('');
+  var list=S.risks.slice();
+  if(ft)list=list.filter(function(x){return x.type===ft;});
+  if(fl)list=list.filter(function(x){return x.level===fl;});
+  if(fp)list=list.filter(function(x){return x.project===fp;});
+  if(fs)list=list.filter(function(x){return x.status===fs;});
+  if(!list.length){document.getElementById('risk-list').innerHTML='<div class="empty"><div class="empi">⚠</div><div class="empm">No risks or dependencies — click "+ Add Risk / Dependency"</div></div>';return;}
+  document.getElementById('risk-list').innerHTML=list.map(function(r){
+    var rid=r.id;
+    var lc={High:'hi',Medium:'md',Low:'lo'}[r.level]||'md';
+    var levelChip={High:'cr',Medium:'ca',Low:'cg2'}[r.level]||'ca';
+    var typeChip={Risk:'cr',Dependency:'cb',Blocker:'co'}[r.type]||'ca';
+    var statChip={Open:'cr',Mitigated:'ca',Closed:'cg2'}[r.status]||'cg';
+    return '<div class="riskcard '+lc+'"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px"><div style="flex:1;min-width:0"><div class="risk-title">'+h(r.title)+'</div><div class="risk-meta"><span class="chip '+typeChip+'">'+h(r.type)+'</span><span class="chip '+levelChip+'">'+h(r.level)+' severity</span><span class="chip '+statChip+'">'+h(r.status)+'</span>'+(r.project?'<span class="chip cb">'+h(r.project)+'</span>':'')+(r.owner?'<span class="chip cp">👤 '+h(r.owner)+'</span>':'')+(r.due?'<span class="chip cg">Due: '+r.due+'</span>':'')+'</div>'+(r.impact?'<div class="risk-body"><strong style="color:#475569">Impact:</strong> '+h(r.impact)+'</div>':'')+(r.mitigation?'<div class="risk-body" style="margin-top:5px"><strong style="color:#475569">Mitigation:</strong> '+h(r.mitigation)+'</div>':'')+'</div><div style="display:flex;gap:4px;flex-shrink:0"><button class="ic" onclick="openRiskForm(\''+rid+'\')" title="Edit">✎</button><button class="ic del" onclick="delRisk(\''+rid+'\')" title="Delete">✕</button></div></div></div>';
+  }).join('');
+}
+
+/* ===== ESCALATION ===== */
+function openEscForm(id){
+  _eEsc=id||null;var e=id?S.escalation.find(function(x){return x.id===id;}):null;
+  openForm('esc',id?'Edit escalation contact':'Add escalation contact');
+  document.getElementById('es-proj').innerHTML=getProjOpts(e?e.project||'':'');
+  document.getElementById('es-name').value=e?e.name:'';
+  document.getElementById('es-role').value=e?(e.role||''):'';
+  document.getElementById('es-level').value=e?(e.level||'L2'):'L2';
+  document.getElementById('es-email').value=e?(e.email||''):'';
+  document.getElementById('es-phone').value=e?(e.phone||''):'';
+  document.getElementById('es-when').value=e?(e.when||''):'';
+  setTimeout(function(){document.getElementById('es-name').focus();},80);
+}
+function saveEsc(){
+  var name=document.getElementById('es-name').value.trim();
+  if(!name){toast('Please enter a name');return;}
+  var ex=_eEsc?S.escalation.find(function(x){return x.id===_eEsc;}):null;
+  var esc={id:_eEsc||String(Date.now()),name:name,role:document.getElementById('es-role').value.trim(),level:document.getElementById('es-level').value,email:document.getElementById('es-email').value.trim(),phone:document.getElementById('es-phone').value.trim(),project:document.getElementById('es-proj').value,when:document.getElementById('es-when').value.trim(),created:ex?ex.created:new Date().toISOString()};
+  if(_eEsc){var i=S.escalation.findIndex(function(x){return x.id===_eEsc;});if(i>=0)S.escalation[i]=esc;}
+  else S.escalation.push(esc);
+  addLog((_eEsc?'Updated':'Added')+' escalation: '+name);persist();cancelForm();toast(_eEsc?'Updated ✓':'Saved ✓');
+}
+function delEsc(id){if(!confirm('Delete?'))return;S.escalation=S.escalation.filter(function(x){return x.id!==id;});persist();renderEsc();toast('Deleted');}
+function renderEsc(){
+  var fp=document.getElementById('fesc-proj').value;
+  var fl=document.getElementById('fesc-level').value;
+  var projs=[];S.escalation.forEach(function(x){if(x.project&&projs.indexOf(x.project)<0)projs.push(x.project);});
+  var sel=document.getElementById('fesc-proj'),cv=sel.value;
+  sel.innerHTML='<option value="">All projects</option>'+projs.map(function(p){return'<option value="'+h(p)+'"'+(p===cv?' selected':'')+'>'+h(p)+'</option>';}).join('');
+  var list=S.escalation.slice();
+  if(fp)list=list.filter(function(x){return x.project===fp;});
+  if(fl)list=list.filter(function(x){return x.level===fl;});
+  var levelOrder={'L1':0,'L2':1,'L3':2,'L4':3};
+  list.sort(function(a,b){return(levelOrder[a.level]||0)-(levelOrder[b.level]||0);});
+  if(!list.length){document.getElementById('esc-list').innerHTML='<div class="empty"><div class="empi">↑</div><div class="empm">No escalation contacts yet — click "+ Add Contact"</div></div>';return;}
+  document.getElementById('esc-list').innerHTML=list.map(function(e){
+    var eid=e.id;
+    var lc={'L1':'cb','L2':'ca','L3':'cr','L4':'co'}[e.level]||'cg';
+    return '<div class="esc-card"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span class="chip '+lc+'">'+h(e.level)+'</span><div class="esc-name" style="margin-bottom:0">'+h(e.name)+'</div></div><div class="esc-role">'+h(e.role||'')+'</div><div class="esc-meta">'+(e.project?'<span class="chip cb">'+h(e.project)+'</span>':'')+(e.email?'<span class="chip cg">✉ '+h(e.email)+'</span>':'')+(e.phone?'<span class="chip cg">'+h(e.phone)+'</span>':'')+'</div>'+(e.when?'<div style="font-size:12px;color:#64748B;background:#F8FAFC;border-radius:8px;padding:6px 10px;margin-top:4px"><strong style="color:#475569">When to escalate:</strong> '+h(e.when)+'</div>':'')+'</div><div style="display:flex;gap:4px;flex-shrink:0"><button class="ic" onclick="openEscForm(\''+eid+'\')" title="Edit">✎</button><button class="ic del" onclick="delEsc(\''+eid+'\')" title="Delete">✕</button></div></div></div>';
+  }).join('');
+}
+
+/* ===== ACTIVITY ===== */
+function renderActivity(){
+  document.getElementById('act-list').innerHTML=S.log.length?S.log.map(function(a){
+    var d=new Date(a.ts),ts=d.toLocaleString('en-IN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    return'<div class="actr"><div class="actd"></div><div class="actm">'+h(a.msg)+'</div><div class="actts">'+ts+'</div></div>';
+  }).join(''):'<div class="empty"><div class="empi">≡</div><div class="empm">No activity yet</div></div>';
+}
+
+async function init(){
+  await load();
+  document.getElementById('sbd').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('mt-date').value=td();
+  document.getElementById('mt-proj').innerHTML=getProjOpts('');
+  renderDash();badges();updateMOMBadge();
+}
+init();
+</script>
+</body></html>
