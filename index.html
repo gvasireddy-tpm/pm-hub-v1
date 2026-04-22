@@ -183,7 +183,15 @@ textarea{resize:vertical;line-height:1.6}
 <body>
 <div class="app" id="APP" style="position:relative">
 <div class="sb">
-  <div class="sb-top"><div class="sb-logo">PM Hub</div><div class="sb-date" id="sbd"></div></div>
+  <div class="sb-top">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="sb-logo">PM Hub</div>
+      <div title="Auto-save status" style="display:flex;align-items:center;gap:5px;font-size:10px;color:#94A3B8">
+        <div id="save-dot" style="width:7px;height:7px;border-radius:50%;background:#CBD5E1;transition:background .3s"></div>saved
+      </div>
+    </div>
+    <div class="sb-date" id="sbd"></div>
+  </div>
   <div class="sb-grp">Overview</div>
   <div class="sb-lnk on" data-page="dashboard" onclick="goPage(this)"><span class="sb-ic">⊞</span>Dashboard</div>
   <div class="sb-grp">Work</div>
@@ -200,7 +208,11 @@ textarea{resize:vertical;line-height:1.6}
   <div class="sb-lnk" data-page="escalation" onclick="goPage(this)"><span class="sb-ic">↑</span>Escalation Matrix</div>
   <div class="sb-grp">History</div>
   <div class="sb-lnk" data-page="activity" onclick="goPage(this)"><span class="sb-ic">≡</span>Daily Log</div>
-  <div class="sb-foot">Data saved in your browser</div>
+  <div class="sb-foot">
+    <div style="margin-bottom:8px;font-size:11px;color:#94A3B8">Data stored in this browser</div>
+    <button class="btn xs" onclick="exportData()" style="width:100%;margin-bottom:5px;justify-content:center;background:#F0FDF4;color:#15803D;border-color:#BBF7D0">⬇ Export backup</button>
+    <button class="btn xs" onclick="importData()" style="width:100%;justify-content:center;background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE">⬆ Restore backup</button>
+  </div>
 </div>
 
 <div class="mn">
@@ -465,15 +477,48 @@ var _eTask=null,_eProj=null,_eCL=null,_eCLcl=null,_eCLI=null,_eRem=null,_vMOM=nu
 var PAGS=['dashboard','projects','tasks','board','checklists','reminders','meetings','learnings','risks','escalation','activity'];
 var FRMS=['task','proj','cl','cli','rem','learn','risk','esc','momview'];
 
-async function load(){
+function load(){
   try{
-    var r=await window.storage.get('pmhub8');
-    if(r&&r.value){S=JSON.parse(r.value);}
-    else{var r7=await window.storage.get('pmhub7');if(r7&&r7.value){var old=JSON.parse(r7.value);['tasks','checklists','reminders','moms','learnings','log'].forEach(function(k){if(old[k])S[k]=old[k];});}}
+    var raw=localStorage.getItem('pmhub8');
+    if(raw){S=JSON.parse(raw);}
   }catch(e){}
   ['tasks','projects','checklists','reminders','moms','learnings','risks','escalation','log'].forEach(function(k){if(!S[k])S[k]=[];});
 }
-async function persist(){try{await window.storage.set('pmhub8',JSON.stringify(S));}catch(e){}}
+function persist(){
+  try{
+    localStorage.setItem('pmhub8',JSON.stringify(S));
+    var el=document.getElementById('save-dot');
+    if(el){el.style.background='#16A34A';setTimeout(function(){el.style.background='#CBD5E1';},1200);}
+  }catch(e){toast('⚠ Could not save — storage full?');}
+}
+function exportData(){
+  var blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='pmhub-backup-'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();toast('Backup downloaded ✓');
+}
+function importData(){
+  var input=document.createElement('input');input.type='file';input.accept='.json';
+  input.onchange=function(e){
+    var file=e.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        var imported=JSON.parse(ev.target.result);
+        if(!imported.tasks&&!imported.projects){toast('Invalid backup file');return;}
+        if(!confirm('This will replace ALL current data with the backup. Continue?'))return;
+        S=imported;
+        ['tasks','projects','checklists','reminders','moms','learnings','risks','escalation','log'].forEach(function(k){if(!S[k])S[k]=[];});
+        persist();
+        var cur=document.querySelector('.sb-lnk.on');if(cur)goPage(cur);else renderDash();
+        badges();updateMOMBadge();
+        toast('Data restored from backup ✓');
+      }catch(ex){toast('Could not read backup file');}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
 function td(){return new Date().toISOString().split('T')[0];}
 function h(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2400);}
@@ -1012,8 +1057,8 @@ function renderActivity(){
   }).join(''):'<div class="empty"><div class="empi">≡</div><div class="empm">No activity yet</div></div>';
 }
 
-async function init(){
-  await load();
+function init(){
+  load();
   document.getElementById('sbd').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
   document.getElementById('mt-date').value=td();
   document.getElementById('mt-proj').innerHTML=getProjOpts('');
